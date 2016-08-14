@@ -2,11 +2,15 @@
 
 一个在vue框架下操作localStorage和sessionStorage而不造成性能问题的插件
 
+已经使用的项目点这里: [X-SONGTAO](http://xiangsongtao.com "X-SONGTAO")
+
+因为小站带宽的问题，请求数据的返回都放到了sessionStorage中，提高浏览流畅度。清除缓存的hack在左上角的那个小树icon上，点击可清除缓存，这个在控制台中能看到效果。
 
 
 ## 安装
 
 暂时还未上传到npm，需要手动下载vStorage.js
+
 
 
 ## 初始化配置
@@ -16,7 +20,7 @@
 ```
 import vStorage from './path/to/vStorage.js'
 Vue.use(vStorage, {
-    storageKeyPrefix: 'prefix-'
+    storageKeyPrefix: 'vStorage-'
 });
 ```
 > storageKeyPrefix为指定前缀，设置在webStorage存储的前缀，区别作用空间
@@ -113,7 +117,7 @@ webStorage中最后的存储结果：
 |    vStorage-key1    |       {"key1_1":"value1_1","key1_2":"value1_2"}     |   
 
 
-- 清除特例
+- 清除特例（期望保存的值不被清除的做法）
 
 如果项目中有些数据是不希望清除的，请已'$'开头命名变量key值，例如下面的键值对，$reset是不会处理的。但是也意味着此键值对将为内置键值对，不会同步到本地webStorage中。
 
