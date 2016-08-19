@@ -102,21 +102,21 @@ module.exports = {
                 //初始化从本地拉数据
                 _store.$fetch();
 
-                //设置代理
-                var logHandler = {
-                    get: function(target, key) {
-                        // console.log(`${key} 被读取`);
-                        return target[key];
-                    },
-                    set: function(target, key, value,proxy) {
-                        // console.log(`${key} 被设置为 ${value}`);
-                        _store[key] = copy(value);
-                        _webStorage.setItem(storageKeyPrefix + key, serializer(value));
-                        return Reflect.set(target, key, value, proxy);
-                    }
-                };
-                let targetWithLog = new Proxy(_store, logHandler);
-                return targetWithLog
+                //设置代理,移动端无法解析proxy
+//                var logHandler = {
+//                    get: function(target, key) {
+//                        // console.log(`${key} 被读取`);
+//                        return target[key];
+//                    },
+//                    set: function(target, key, value,proxy) {
+//                        // console.log(`${key} 被设置为 ${value}`);
+//                        _store[key] = copy(value);
+//                        _webStorage.setItem(storageKeyPrefix + key, serializer(value));
+//                        return Reflect.set(target, key, value, proxy);
+//                    }
+//                };
+                // let targetWithLog = new Proxy(_store, logHandler);
+                return _store
             };
             return _storage()
         }

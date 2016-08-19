@@ -7,6 +7,7 @@
 因为小站带宽的问题，请求数据的返回都放到了sessionStorage中，提高浏览流畅度。清除缓存的hack在左上角的那个小树icon上，点击可清除缓存，这个在控制台中能看到效果。
 
 
+
 ## 安装
 
 暂时还未上传到npm，需要手动下载vStorage.js
@@ -44,16 +45,24 @@ vStorage只会从webStorage同步指定前缀的键值数据，这样方便标�
 ```
  import Vue from "vue";
  //设置
- Vue.$localStorage.value={
-    'key1':{
-        'key1_1':'value1_1',
-        'key1_2':'value1_2',
-    },
-    'key2':{
-        'key2_1':'value2_1',
-        'key2_2':'value2_2',
-    }
-};
+
+Vue.$localStorage.$set({
+        'key1':{
+            'key1_1':'value1_1',
+            'key1_2':'value1_2',
+        },
+        'key2':{
+            'key2_1':'value2_1',
+            'key2_2':'value2_2',
+        }
+})
+
+Vue.$localStorage.$set('key1',{
+    'key1_1':'value1_1',
+    'key1_2':'value1_2',
+})
+
+
 //读取 
  Vue.$localStorage.value;
 
@@ -65,16 +74,22 @@ vStorage只会从webStorage同步指定前缀的键值数据，这样方便标�
 //比如在ready中
 ready() {
  	//设置
-	this.$localStorage.value={
-    	'key1':{
-        	'key1_1':'value1_1',
-        	'key1_2':'value1_2',
-    	},
-    	'key2':{
-        	'key2_1':'value2_1',
-        	'key2_2':'value2_2',
-    	}
-	};
+	this.$localStorage.$set({
+        'key1':{
+            'key1_1':'value1_1',
+            'key1_2':'value1_2',
+        },
+        'key2':{
+            'key2_1':'value2_1',
+            'key2_2':'value2_2',
+        }
+	})
+
+	this.$localStorage.$set('key1',{
+    	'key1_1':'value1_1',
+    	'key1_2':'value1_2',
+	})
+	
 	//读取 
 	let name = this.$localStorage.value;
 
@@ -164,13 +179,6 @@ Vue.$localStorage.$set('key1',{
 ```
 
 
-
-
-**推荐使用如下形式设置键值对：**
-
-```
-Vue.$localStorage.key="value"
-```
 
 
 
