@@ -10,7 +10,7 @@
 
 ## 安装
 
-暂时还未上传到npm，需要手动下载vStorage.js
+暂时还未上传到npm，需要手动下载vStorage.js。
 
 
 
