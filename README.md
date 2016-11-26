@@ -2,19 +2,49 @@
 
 一个在vue框架下操作localStorage和sessionStorage而不造成性能问题的插件
 
-已经使用的项目点这里: [X-SONGTAO](http://xiangsongtao.com "X-SONGTAO")
 
-因为小站带宽的问题，请求数据的返回都放到了sessionStorage中，提高浏览流畅度。清除缓存的hack在左上角的那个小树icon上，点击可清除缓存，这个在控制台中能看到效果。
-
-
-
-## 安装
-
-暂时还未上传到npm，需要手动下载vStorage.js。
-
+<p align="center">
+  <a href="https://circleci.com/gh/vuejs/vue/tree/dev"><img src="https://img.shields.io/circleci/project/vuejs/vue/dev.svg" alt="Build Status"></a>
+  <a href="https://codecov.io/github/vuejs/vue?branch=dev"><img src="https://img.shields.io/codecov/c/github/vuejs/vue/dev.svg" alt="Coverage Status"></a>
+  <a href="https://www.npmjs.com/package/vue"><img src="https://img.shields.io/npm/dt/vue.svg" alt="Downloads"></a>
+  <a href="https://www.npmjs.com/package/vue"><img src="https://img.shields.io/npm/v/vue.svg" alt="Version"></a>
+  <a href="https://www.npmjs.com/package/vue"><img src="https://img.shields.io/npm/l/vue.svg" alt="License"></a>
+</p>
 
 
-## 初始化配置
+> 已经使用的项目点这里: [X-SONGTAO](http://xiangsongtao.com "X-SONGTAO")
+
+> 因为小站带宽的问题，请求数据的返回都放到了sessionStorage中，提高浏览流畅度。清除缓存的hack在左上角的那个小树icon上，点击可清除缓存，这个在控制台中能看到效果。
+
+
+## Table of Contents
+
+- Requirements
+- Usage
+
+## Requirements
+
+vStorage requires the following ro run:
+
+- vue 1.0+
+- Node 0.10+
+- npm 
+
+
+
+
+
+## Usage
+
+使用npm命令安装vStorage
+
+```
+ npm install vStorage
+
+```
+
+
+
 
 在app.vue中配置如下：
 
