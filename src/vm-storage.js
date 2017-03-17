@@ -1,6 +1,5 @@
 /**
  * Created by Hsiang on 2017/3/2.
- *
  * @module Storage
  * @description
  * @licence MIT
