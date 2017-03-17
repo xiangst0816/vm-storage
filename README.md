@@ -1,4 +1,4 @@
-# vStorage
+# vm-storage
 
 一个在vue框架下操作localStorage和sessionStorage而不造成性能问题的插件
 
