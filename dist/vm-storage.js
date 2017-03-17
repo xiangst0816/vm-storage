@@ -54,6 +54,8 @@ var Storage = function () {
     this._prefixLength = null; // prefix length
     this._storageType = null; // storage type: localStorage/sessionStorage
 
+    this.length = 0;
+
     this._storageType = storageType;
     if (!!options && !!options.prefix) {
       this._prefix = options.prefix;
@@ -72,11 +74,12 @@ var Storage = function () {
     }
 
     // init
-    if (!this.supported() || this._storageType !== 'localStorage') return;
+    // if (!this.supported() || this._storageType !== 'localStorage') return;
     for (var i = 0, l = this._storage.length, k; i < l; i++) {
       // #8, #10: ` _storage.key(i)` may be an empty string (or throw an exception in IE9 if ` _storage` is empty)
       k = this._storage.key(i);
       if (this._prefix === k.slice(0, this._prefixLength)) {
+        this.length++;
         this[k.slice(this._prefixLength)] = JSON.parse(this._storage.getItem(k));
       }
     }
@@ -104,6 +107,7 @@ var Storage = function () {
     key: 'setItem',
     value: function setItem(key, value) {
       this[key] = JSON.parse(JSON.stringify(value));
+      this.length++;
       this.supported() && this._storage.setItem(this._prefix + key, JSON.stringify(value));
     }
 
@@ -115,6 +119,7 @@ var Storage = function () {
     key: 'clear',
     value: function clear() {
       var _this = this;
+      this.length = 0;
       for (var k in _this) {
         '$' === k[0] || delete _this[k] && this.supported() && _this._storage.removeItem(_this._prefix + k);
       }
@@ -128,7 +133,20 @@ var Storage = function () {
   }, {
     key: 'removeItem',
     value: function removeItem(key) {
+      this.length--;
       delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
+    }
+
+    /**
+     * key
+     * @param {number} num
+     * */
+
+  }, {
+    key: 'key',
+    value: function key(num) {
+      var keys = Object.keys(this._storage);
+      return keys[parseInt(num)];
     }
 
     /**

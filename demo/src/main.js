@@ -3,10 +3,12 @@ import App from './App'
 
 // from local file
 import vmStorage from '../../dist/vm-storage'
+Vue.use(vmStorage)
+
+
 
 /* eslint-disable no-new */
 
-Vue.use(vmStorage)
 new Vue({
   el: '#app',
   template: '<App/>',

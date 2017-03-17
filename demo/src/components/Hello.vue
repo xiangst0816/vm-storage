@@ -2,32 +2,215 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <strong>This is build for Vue!</strong>
+    <hr>
     <section>
-      <h2>localStorage</h2>
+      <h2>localStorage Service</h2>
       <div class="state">
-        <div class="state__name">State</div>
-        <div class="state__params">
-          <div class="state__params--name">prefix:</div>
-          <div class="state__params--value">123123</div>
+        <div class="state__name">
+          <h3>State</h3>
+        </div>
+        <div class="state__paramsBox">
+          <div class="state__params">
+            <span class="state__params--name">Prefix:</span>
+            <span class="state__params--value">{{$localStorage._prefix}}</span>
+
+          </div>
+          <div class="state__params">
+            <span class="state__params--name">Prefix Length:</span>
+            <span class="state__params--value">{{$localStorage._prefixLength}}</span>
+          </div>
+          <div class="state__params">
+            <span class="state__params--name">Storage Type:</span>
+            <span class="state__params--value">{{$localStorage._storageType}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="resultBox">
+        <div class="strage">
+          <h3>$localStorage length:{{$localStorage.length}}</h3>
+          <div>
+            <input placeholder="key" type="text" v-model="innerLocalStorageKey">
+            <input placeholder="value" type="text" v-model="innerLocalStorageValue">
+            <button @click="addInnerLocalStorage">add</button>
+          </div>
+
+          <p v-for="(value,key) in $localStorage" v-if="key.indexOf('_') !== 0 && key!=='length'">
+            <span>{{key}}:</span>
+            <span>{{value}}</span>
+            <button @click="removeInnerLocalStorageItem(key)">remove</button>
+          </p>
+        </div>
+
+        <div class="strage borderLeft">
+          <div class="strage">
+            <h3>localStorage length:{{localStorageListLength}}</h3>
+            <div>
+              <input placeholder="key" type="text" v-model="outerLocalStorageKey">
+              <input placeholder="value" type="text" v-model="outerLocalStorageValue">
+              <button @click="addOuterLocalStorage">add</button>
+            </div>
+
+            <p v-for="(value,key) in localStorageList">
+              <span>{{key}}:</span>
+              <span>{{value}}</span>
+              <button @click="removeOuterLocalStorageItem(key)">remove</button>
+            </p>
+          </div>
         </div>
       </div>
 
     </section>
+    <hr>
+    <section>
+      <h2>sessionStorage Service</h2>
+      <div class="state">
+        <div class="state__name">
+          <h3>State</h3>
+        </div>
+        <div class="state__paramsBox">
+          <div class="state__params">
+            <span class="state__params--name">Prefix:</span>
+            <span class="state__params--value">{{$sessionStorage._prefix}}</span>
+
+          </div>
+          <div class="state__params">
+            <span class="state__params--name">Prefix Length:</span>
+            <span class="state__params--value">{{$sessionStorage._prefixLength}}</span>
+
+          </div>
+          <div class="state__params">
+            <span class="state__params--name">Storage Type:</span>
+            <span class="state__params--value">{{$sessionStorage._storageType}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="resultBox">
+        <div class="strage">
+          <h3>$sessionStorage length:{{$sessionStorage.length}}</h3>
+          <div>
+            <input placeholder="key" type="text" v-model="innerSessionStorageKey">
+            <input placeholder="value" type="text" v-model="innerSessionStorageValue">
+            <button @click="addInnerSessionStorage">add</button>
+          </div>
+
+          <p v-for="(value,key) in $sessionStorage" v-if="key.indexOf('_') !== 0 && key!=='length'">
+            <span>{{key}}:</span>
+            <span>{{value}}</span>
+            <button @click="removeInnerSessionStorageItem(key)">remove</button>
+          </p>
+        </div>
+
+        <div class="strage borderLeft">
+          <div class="strage">
+            <h3>sessionStorage length:{{sessionStorageListLength}}</h3>
+            <div>
+              <input placeholder="key" type="text" v-model="outerSessionStorageKey">
+              <input placeholder="value" type="text" v-model="outerSessionStorageValue">
+              <button @click="addOuterSessionStorage">add</button>
+            </div>
+
+            <p v-for="(value,key) in sessionStorageList">
+              <span>{{key}}:</span>
+              <span>{{value}}</span>
+              <button @click="removeOuterSessionStorageItem(key)">remove</button>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
   </div>
 </template>
-
 <script type="text/ecmascript-6">
   export default {
     name: 'hello',
     data () {
       return {
-        msg: 'Welcome to Vue!'
+        msg: 'Welcome to vm-storage!',
+        localStorageList: {},
+        sessionStorageList: {},
+
+        innerLocalStorageKey: '',
+        innerLocalStorageValue: '',
+        outerLocalStorageKey: '',
+        outerLocalStorageValue: '',
+
+        innerSessionStorageKey: '',
+        innerSessionStorageValue: '',
+        outerSessionStorageKey: '',
+        outerSessionStorageValue: '',
+      }
+    },
+    computed:{
+      localStorageListLength(){
+        return  window.localStorage.length
+      },
+      sessionStorageListLength(){
+        return  window.sessionStorage.length
+      }
+    },
+    methods: {
+      addInnerLocalStorage(){
+        this.$localStorage.setItem(this.innerLocalStorageKey, this.innerLocalStorageValue)
+        window.history.go(0)
+      },
+      removeInnerLocalStorageItem(key){
+        this.$localStorage.removeItem(key)
+        window.history.go(0)
+      },
+      addOuterLocalStorage(){
+        window.localStorage.setItem(this.outerLocalStorageKey, this.outerLocalStorageValue);
+        window.history.go(0)
+      },
+      removeOuterLocalStorageItem(key){
+        window.localStorage.removeItem(key)
+        window.history.go(0)
+      },
+      addInnerSessionStorage(){
+        this.$sessionStorage.setItem(this.innerSessionStorageKey, this.innerSessionStorageValue)
+        window.history.go(0)
+      },
+      removeInnerSessionStorageItem(key){
+        this.$sessionStorage.removeItem(key)
+        window.history.go(0)
+      },
+
+      addOuterSessionStorage(){
+        window.sessionStorage.setItem(this.outerSessionStorageKey, this.outerSessionStorageValue);
+        window.history.go(0)
+      },
+      removeOuterSessionStorageItem(key){
+        window.sessionStorage.removeItem(key)
+        window.history.go(0)
+      },
+    },
+    created(){
+      if (!!window.localStorage) {
+        for (let i = 0, l = window.localStorage.length, k; i < l; i++) {
+          k = window.localStorage.key(i);
+          this.localStorageList[k] = window.localStorage.getItem(k)
+        }
+      }
+
+      if (!!window.sessionStorage) {
+        for (let i = 0, l = window.sessionStorage.length, k; i < l; i++) {
+          k = window.sessionStorage.key(i);
+          this.sessionStorageList[k] = window.sessionStorage.getItem(k)
+        }
       }
     },
     mounted () {
-      this.$localStorage.setItem('a', 123)
-      console.debug(this.$localStorage)
-      console.debug(this.$localStorage.getItem('a'))
+      console.debug(this.$localStorage.length)
+      for (let i = 0, l = this.$localStorage.length, k; i < l; i++) {
+        // #8, #10: ` _storage.key(i)` may be an empty string (or throw an exception in IE9 if ` _storage` is empty)
+        k = this.$localStorage.key(i);
+        console.debug(k)
+      }
+
     }
   }
 
@@ -35,25 +218,74 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-h1, h2 {
-  font-weight: normal;
-}
+  h1, h2 {
+    font-weight: normal;
+  }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
 
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
+  li {
+    display: inline-block;
+    margin: 0 10px;
+  }
 
-a {
-  color: #42b983;
-}
+  a {
+    color: #42b983;
+  }
 
+  * {
+    /*outline: 1px solid #ddd;*/
+  }
 
+  .state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    .state__name {
+      width: 100px;
+      height: 100%;
+      margin-right: 10px;
+      border-right: 1px solid #ddd;
+    }
+    .state__paramsBox {
+      height: 100%;
+      .state__params {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        .state__params--name {
+          width: 120px;
+          text-align: left;
+          font-weight: bold;
+        }
+        .state__params--value {
+          text-align: left;
+        }
+      }
+    }
+  }
 
+  .resultBox {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    .borderLeft {
+      border-left: 1px solid #ddd;;
+    }
+    .strage {
+      width: 400px;
+      h3 {
+        margin-bottom: 10px;
+      }
+      p {
+        margin: 0 0 5px 0;
+      }
+
+    }
+  }
 
 </style>
