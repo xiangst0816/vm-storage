@@ -1,0 +1,25 @@
+
+{
+  "name": "v-storage",
+  "version": "0.0.1",
+  "description": "A vue plugin for operate localStorage and sessionStorage",
+  "author": {
+    "name": "Hsiang",
+    "email": "280304286@163.com"
+  },
+  "bugs": {
+    "url": "https://github.com/xiangsongtao/v-storage/issues"
+  },
+  "homepage": "https://github.com/xiangsongtao/v-storage",
+  "keywords": [
+    "vue",
+    "localStorage",
+    "sessionStorage",
+    "performance"
+  ],
+  "licenses": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xiangsongtao/v-storage.git"
+  }
+}

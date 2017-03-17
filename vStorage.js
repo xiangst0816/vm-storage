@@ -1,8 +1,16 @@
 /**
  * Created by xiangsongtao on 16/8/3.
  * Description: localstorage和sessionStorage的插件
+ * @name localstorage和sessionStorage的插件
+ * @author Songtao <123@123.com>
+ *
  */
 module.exports = {
+    /**
+     * @name install
+     * @param {object} Vue
+     * @param {object} options
+     * */
     install: function (Vue, options) {
         var getPrototypeOf = Object.getPrototypeOf;
 
