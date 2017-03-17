@@ -8,6 +8,15 @@
  *
  * For more detail? please direct to [here](https://github.com/xiangsongtao/vm-storage)
  *
+ * NOTICE: This is written by ES2015! You will need babel to compile or run `npm dev`.
+ *
+ * ### for Babel
+ *
+ * ```
+ * npm install --global babel-cli
+ * npm install --save-dev babel-preset-es2015
+ *
+ * ```
  */
 
 module.exports = {

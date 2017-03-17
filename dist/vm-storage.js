@@ -10,8 +10,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @module Storage
  * @description
  * @licence MIT
- * @author Hsiang <280304286@163.com>
- *
+ * @author Hisang
  *
  * For more detail? please direct to [here](https://github.com/xiangsongtao/vm-storage)
  *
@@ -25,6 +24,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * ```
  */
+
 module.exports = {
   install: function install(Vue, options) {
     Object.assign(Vue.prototype, {
@@ -53,7 +53,6 @@ var Storage = function () {
     this._storage = null; // current storage function, if not support, it will be false
     this._prefixLength = null; // prefix length
     this._storageType = null; // storage type: localStorage/sessionStorage
-
     this.length = 0;
 
     this._storageType = storageType;
@@ -74,7 +73,6 @@ var Storage = function () {
     }
 
     // init
-    // if (!this.supported() || this._storageType !== 'localStorage') return;
     for (var i = 0, l = this._storage.length, k; i < l; i++) {
       // #8, #10: ` _storage.key(i)` may be an empty string (or throw an exception in IE9 if ` _storage` is empty)
       k = this._storage.key(i);
@@ -107,8 +105,8 @@ var Storage = function () {
     key: 'setItem',
     value: function setItem(key, value) {
       this[key] = JSON.parse(JSON.stringify(value));
-      this.length++;
       this.supported() && this._storage.setItem(this._prefix + key, JSON.stringify(value));
+      this.length++;
     }
 
     /**
@@ -136,19 +134,12 @@ var Storage = function () {
       this.length--;
       delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
     }
-
-    /**
-     * key
-     * @param {number} num
-     * */
-
   }, {
     key: 'key',
     value: function key(num) {
       var keys = Object.keys(this._storage);
       return keys[parseInt(num)];
     }
-
     /**
      * supported test
      * */
