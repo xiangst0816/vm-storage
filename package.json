@@ -1,7 +1,11 @@
 {
   "name": "vm-storage",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A vue plugin for operate localStorage and sessionStorage.",
+  "scripts": {
+    "dev": "babel src/vm-storage.js --out-file dist/vm-storage.js --presets es2015",
+    "watch": "babel src/vm-storage.js --watch --out-file dist/vm-storage.js --presets es2015"
+  },
   "author": {
     "name": "Hsiang",
     "email": "280304286@163.com"
@@ -20,5 +24,10 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:xiangsongtao/vm-storage.git"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-preset-es2015": "^6.24.0",
+    "sass-loader": "^6.0.3"
   }
 }

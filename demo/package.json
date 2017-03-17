@@ -1,5 +1,5 @@
 {
-  "name": "vstorage",
+  "name": "vm-storage",
   "version": "1.0.0",
   "description": "A Vue-Storage Demo",
   "author": "向松涛 <280304286@163.com>",
@@ -10,6 +10,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "vm-storage": "^0.0.3",
     "vue": "^2.1.0"
   },
   "devDependencies": {
