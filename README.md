@@ -30,7 +30,7 @@ Vue.use(vmStorage,{
 
 ## Usage
 
-for `normal` use:
+for `normal` style:
 
 ```
 window.localStorage.getItem('key')
@@ -41,7 +41,7 @@ window.localStorage.clear();
 window.localStorage.length
 ```
 
-for `vm-storage` use
+for `vm-storage` style
 
 ```
 this.$localStorage.getItem('key')
@@ -53,7 +53,7 @@ this.$localStorage.supported();
 this.$localStorage.length
 ```
 
-## 插件设计思路
+## My Thought
 
 在vue和webStorage中间建立一个单例缓冲对象($localStorage和$sessionStorage)，当读取webStorage中的数据时，实际读取的是缓冲对象中的数据，这样会减轻读取的性能问题。但是如果向缓冲对象增加字段，则在webStorage中也保存同样的键值，和原生的setItem方法一样。
 
