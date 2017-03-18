@@ -34,7 +34,7 @@ const isFunction = (val) => typeof val === 'function';
 const isDefined = (val) => typeof val !== 'undefined';
 const isUndefined = (val) => typeof val === 'undefined';
 const isPresent = (val) => val !== undefined && val !== null;
-const isBlank = (val) => val === undefined || val === null;
+const isBlank = (val) => val === undefined || val === null || val.trim() === '';
 const isObject = (val) => typeof val === 'object';
 const isArray = Array.isArray;
 

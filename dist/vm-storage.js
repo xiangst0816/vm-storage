@@ -57,7 +57,7 @@ var isPresent = function isPresent(val) {
   return val !== undefined && val !== null;
 };
 var isBlank = function isBlank(val) {
-  return val === undefined || val === null;
+  return val === undefined || val === null || val.trim() === '';
 };
 var isObject = function isObject(val) {
   return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object';
@@ -164,7 +164,7 @@ var Storage = function () {
   }, {
     key: 'removeItem',
     value: function removeItem(key) {
-      if (isBlank(key) || !isString(key)) return;
+      // if (isBlank(key) || !isString(key))return
       this.length--;
       delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
     }
