@@ -6,7 +6,6 @@ vm-storage插件是一个在vue框架下操作localStorage和sessionStorage而�
 
 
 
-
 ## Install
 
 npm to install:
