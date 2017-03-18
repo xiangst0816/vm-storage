@@ -35,7 +35,7 @@
             <button @click="addInnerLocalStorage">add</button>
           </div>
 
-          <p v-for="(value,key) in $localStorage" v-if="key.indexOf('_') !== 0 && key!=='length'">
+          <p v-for="(value,key) in innerLocalStorageList">
             <span>{{key}}:</span>
             <span>{{value}}</span>
             <button @click="removeInnerLocalStorageItem(key)">remove</button>
@@ -51,7 +51,7 @@
               <button @click="addOuterLocalStorage">add</button>
             </div>
 
-            <p v-for="(value,key) in localStorageList">
+            <p v-for="(value,key) in outerLocalStorageList">
               <span>{{key}}:</span>
               <span>{{value}}</span>
               <button @click="removeOuterLocalStorageItem(key)">remove</button>
@@ -111,7 +111,7 @@
               <button @click="addOuterSessionStorage">add</button>
             </div>
 
-            <p v-for="(value,key) in sessionStorageList">
+            <p v-for="(value,key) in outerSessionStorageList">
               <span>{{key}}:</span>
               <span>{{value}}</span>
               <button @click="removeOuterSessionStorageItem(key)">remove</button>
@@ -131,8 +131,11 @@
     data () {
       return {
         msg: 'Welcome to vm-storage!',
-        localStorageList: {},
-        sessionStorageList: {},
+        innerLocalStorageList: {},
+        innerSessionStorageList: {},
+
+        outerLocalStorageList: {},
+        outerSessionStorageList: {},
 
         innerLocalStorageKey: '',
         innerLocalStorageValue: '',
@@ -143,65 +146,108 @@
         innerSessionStorageValue: '',
         outerSessionStorageKey: '',
         outerSessionStorageValue: '',
-      }
-    },
-    computed:{
-      localStorageListLength(){
-        return  window.localStorage.length
-      },
-      sessionStorageListLength(){
-        return  window.sessionStorage.length
+
+        localStorageListLength: 0,
+        sessionStorageListLength: 0,
       }
     },
     methods: {
+      getInnerLocalStorageLength(){
+        return this.localStorageListLength = window.localStorage.length
+      },
+      getSessionStorageListLength(){
+        return this.sessionStorageListLength = window.sessionStorage.length
+      },
+      getInnerLocalStorage(){
+        for (let key in this.$localStorage) {
+          if (key.indexOf('_') !== 0 && key !== 'length') {
+            this.innerLocalStorageList[key] = this.$localStorage[key];
+          }
+        }
+        return this.innerLocalStorageList
+      },
+      getInnerSessionStorage(){
+        for (let key in this.$sessionStorage) {
+          if (key.indexOf('_') !== 0 && key !== 'length') {
+            this.innerSessionStorageList[key] = this.$sessionStorage[key];
+          }
+        }
+        return this.innerSessionStorageList
+      },
+      getOuterLocalStorage(){
+        if (!!window.localStorage) {
+          for (let i = 0, l = window.localStorage.length, k; i < l; i++) {
+            k = window.localStorage.key(i);
+            this.outerLocalStorageList[k] = window.localStorage.getItem(k)
+          }
+        }
+      },
+      getOuterSessionStorage(){
+        if (!!window.sessionStorage) {
+          for (let i = 0, l = window.sessionStorage.length, k; i < l; i++) {
+            k = window.sessionStorage.key(i);
+            this.outerSessionStorageList[k] = window.sessionStorage.getItem(k)
+          }
+        }
+      },
       addInnerLocalStorage(){
         this.$localStorage.setItem(this.innerLocalStorageKey, this.innerLocalStorageValue)
-        window.history.go(0)
+        this.refresh()
       },
       removeInnerLocalStorageItem(key){
         this.$localStorage.removeItem(key)
-        window.history.go(0)
+        this.refresh()
       },
       addOuterLocalStorage(){
         window.localStorage.setItem(this.outerLocalStorageKey, this.outerLocalStorageValue);
-        window.history.go(0)
+        this.refresh()
       },
       removeOuterLocalStorageItem(key){
         window.localStorage.removeItem(key)
-        window.history.go(0)
+        this.refresh()
       },
       addInnerSessionStorage(){
         this.$sessionStorage.setItem(this.innerSessionStorageKey, this.innerSessionStorageValue)
-        window.history.go(0)
+        this.refresh()
       },
       removeInnerSessionStorageItem(key){
         this.$sessionStorage.removeItem(key)
-        window.history.go(0)
+        this.refresh()
       },
-
       addOuterSessionStorage(){
         window.sessionStorage.setItem(this.outerSessionStorageKey, this.outerSessionStorageValue);
-        window.history.go(0)
+        this.refresh()
       },
       removeOuterSessionStorageItem(key){
         window.sessionStorage.removeItem(key)
-        window.history.go(0)
+        this.refresh()
+      },
+      refresh(){
+        this.innerLocalStorageList = {};
+        this.innerSessionStorageList = {};
+        this.outerLocalStorageList = {};
+        this.outerSessionStorageList = {};
+        this.innerLocalStorageKey = '';
+        this.innerLocalStorageValue = '';
+        this.outerLocalStorageKey = '';
+        this.outerLocalStorageValue = '';
+        this.innerSessionStorageKey = '';
+        this.innerSessionStorageValue = '';
+        this.outerSessionStorageKey = '';
+        this.outerSessionStorageValue = '';
+        this.getAllData();
+      },
+      getAllData(){
+        this.getInnerLocalStorage();
+        this.getInnerSessionStorage();
+        this.getOuterLocalStorage();
+        this.getOuterSessionStorage();
+        this.getInnerLocalStorageLength();
+        this.getSessionStorageListLength();
       },
     },
     created(){
-      if (!!window.localStorage) {
-        for (let i = 0, l = window.localStorage.length, k; i < l; i++) {
-          k = window.localStorage.key(i);
-          this.localStorageList[k] = window.localStorage.getItem(k)
-        }
-      }
-
-      if (!!window.sessionStorage) {
-        for (let i = 0, l = window.sessionStorage.length, k; i < l; i++) {
-          k = window.sessionStorage.key(i);
-          this.sessionStorageList[k] = window.sessionStorage.getItem(k)
-        }
-      }
+      this.getAllData();
     },
     mounted () {
       console.debug(this.$localStorage.length)
@@ -210,7 +256,6 @@
         k = this.$localStorage.key(i);
         console.debug(k)
       }
-
     }
   }
 

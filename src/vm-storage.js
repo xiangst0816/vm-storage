@@ -27,6 +27,17 @@ module.exports = {
   }
 };
 
+const isBoolean = (val) => typeof val === 'boolean';
+const isString = (val) => typeof val === 'string';
+const isNumber = (val) => typeof val === 'number';
+const isFunction = (val) => typeof val === 'function';
+const isDefined = (val) => typeof val !== 'undefined';
+const isUndefined = (val) => typeof val === 'undefined';
+const isPresent = (val) => val !== undefined && val !== null;
+const isBlank = (val) => val === undefined || val === null;
+const isObject = (val) => typeof val === 'object';
+const isArray = Array.isArray;
+
 /**
  * @class Storage
  * @description
@@ -79,6 +90,7 @@ class Storage {
    * @param {string} key
    * */
   getItem (key) {
+    if (isBlank(key))return
     return this[key]
   }
 
@@ -88,6 +100,8 @@ class Storage {
    * @param {string} value
    * */
   setItem (key, value) {
+    if (isBlank(key) || isBlank(value))return
+    if (!isString(key))return
     this[key] = JSON.parse(JSON.stringify(value));
     this.supported() && this._storage.setItem(this._prefix + key, JSON.stringify(value));
     this.length++;
@@ -109,13 +123,17 @@ class Storage {
    * @param {string} key
    * */
   removeItem (key) {
+    if (isBlank(key) || !isString(key))return
     this.length--;
     delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
   }
+
   key (num) {
+    if (!isNumber(num))return;
     let keys = Object.keys(this._storage);
     return keys[parseInt(num)]
   }
+
   /**
    * supported test
    * */
@@ -186,13 +204,14 @@ class StorageFallback {
   }
 
   getItem (key) {
-    if (!key || !value) {return}
+    if (isBlank(key))return
     key = key.toString();
     return this._storage[key]
   }
 
   setItem (key, value) {
-    if (!key || !value) {return}
+    if (isBlank(key) || isBlank(value))return
+    if (!isString(key))return
     key = key.toString();
     value = value.toString();
     this._storage[key] = value;
@@ -205,13 +224,14 @@ class StorageFallback {
   }
 
   removeItem (key) {
-    if (!key) {return}
+    if (isBlank(key) || !isString(key))return
     key = key.toString();
     delete this._storage[key];
     this.length--;
   }
 
   key (num) {
+    if (!isNumber(num))return;
     let keys = Object.keys(this._storage);
     return keys[parseInt(num)]
   }

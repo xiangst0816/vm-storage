@@ -10,7 +10,6 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
-    "vm-storage": "^0.0.3",
     "vue": "^2.1.0"
   },
   "devDependencies": {

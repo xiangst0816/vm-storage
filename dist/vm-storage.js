@@ -2,11 +2,12 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by Hsiang on 2017/3/2.
- *
  * @module Storage
  * @description
  * @licence MIT
@@ -33,6 +34,35 @@ module.exports = {
     });
   }
 };
+
+var isBoolean = function isBoolean(val) {
+  return typeof val === 'boolean';
+};
+var isString = function isString(val) {
+  return typeof val === 'string';
+};
+var isNumber = function isNumber(val) {
+  return typeof val === 'number';
+};
+var isFunction = function isFunction(val) {
+  return typeof val === 'function';
+};
+var isDefined = function isDefined(val) {
+  return typeof val !== 'undefined';
+};
+var isUndefined = function isUndefined(val) {
+  return typeof val === 'undefined';
+};
+var isPresent = function isPresent(val) {
+  return val !== undefined && val !== null;
+};
+var isBlank = function isBlank(val) {
+  return val === undefined || val === null;
+};
+var isObject = function isObject(val) {
+  return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object';
+};
+var isArray = Array.isArray;
 
 /**
  * @class Storage
@@ -92,6 +122,7 @@ var Storage = function () {
   _createClass(Storage, [{
     key: 'getItem',
     value: function getItem(key) {
+      if (isBlank(key)) return;
       return this[key];
     }
 
@@ -104,6 +135,8 @@ var Storage = function () {
   }, {
     key: 'setItem',
     value: function setItem(key, value) {
+      if (isBlank(key) || isBlank(value)) return;
+      if (!isString(key)) return;
       this[key] = JSON.parse(JSON.stringify(value));
       this.supported() && this._storage.setItem(this._prefix + key, JSON.stringify(value));
       this.length++;
@@ -131,15 +164,18 @@ var Storage = function () {
   }, {
     key: 'removeItem',
     value: function removeItem(key) {
+      if (isBlank(key) || !isString(key)) return;
       this.length--;
       delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
     }
   }, {
     key: 'key',
     value: function key(num) {
+      if (!isNumber(num)) return;
       var keys = Object.keys(this._storage);
       return keys[parseInt(num)];
     }
+
     /**
      * supported test
      * */
@@ -225,18 +261,15 @@ var StorageFallback = function () {
   _createClass(StorageFallback, [{
     key: 'getItem',
     value: function getItem(key) {
-      if (!key || !value) {
-        return;
-      }
+      if (isBlank(key)) return;
       key = key.toString();
       return this._storage[key];
     }
   }, {
     key: 'setItem',
     value: function setItem(key, value) {
-      if (!key || !value) {
-        return;
-      }
+      if (isBlank(key) || isBlank(value)) return;
+      if (!isString(key)) return;
       key = key.toString();
       value = value.toString();
       this._storage[key] = value;
@@ -251,9 +284,7 @@ var StorageFallback = function () {
   }, {
     key: 'removeItem',
     value: function removeItem(key) {
-      if (!key) {
-        return;
-      }
+      if (isBlank(key) || !isString(key)) return;
       key = key.toString();
       delete this._storage[key];
       this.length--;
@@ -261,6 +292,7 @@ var StorageFallback = function () {
   }, {
     key: 'key',
     value: function key(num) {
+      if (!isNumber(num)) return;
       var keys = Object.keys(this._storage);
       return keys[parseInt(num)];
     }
