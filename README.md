@@ -30,7 +30,7 @@ Vue.use(vmStorage,{
 
 ## Usage
 
-for `normal` style:
+For `normal` style:
 
 ```
 window.localStorage.getItem('key')
@@ -41,7 +41,7 @@ window.localStorage.clear();
 window.localStorage.length
 ```
 
-for `vm-storage` style
+For `vm-storage` style
 
 ```
 this.$localStorage.getItem('key')
