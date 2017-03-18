@@ -5,10 +5,6 @@ a vue plugin for operate localStorage and sessionStorage, if the browser not sup
 vm-storage插件是一个在vue框架下操作localStorage和sessionStorage而不造成性能问题的插件, 如果当前浏览器不支持本地存储, 则自动降级为使用memory存储.
 
 
-
-
-
-
 ## Install
 
 npm to install:
@@ -30,7 +26,7 @@ Vue.use(vmStorage,{
 
 ## Usage
 
-for `normal` style:
+For `normal` style:
 
 ```
 window.localStorage.getItem('key')
@@ -41,7 +37,7 @@ window.localStorage.clear();
 window.localStorage.length
 ```
 
-for `vm-storage` style
+For `vm-storage` style
 
 ```
 this.$localStorage.getItem('key')
