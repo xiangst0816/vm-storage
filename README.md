@@ -37,7 +37,7 @@ window.localStorage.clear();
 window.localStorage.length
 ```
 
-For `vm-storage` style
+For `vm-storage` style:
 
 ```
 this.$localStorage.getItem('key')
