@@ -7,8 +7,6 @@ vm-storage插件是一个在vue框架下操作localStorage和sessionStorage而�
 
 
 
-
-
 ## Install
 
 npm to install:
@@ -30,7 +28,7 @@ Vue.use(vmStorage,{
 
 ## Usage
 
-for `normal` style:
+For `normal` style:
 
 ```
 window.localStorage.getItem('key')
@@ -41,7 +39,7 @@ window.localStorage.clear();
 window.localStorage.length
 ```
 
-for `vm-storage` style
+For `vm-storage` style
 
 ```
 this.$localStorage.getItem('key')
