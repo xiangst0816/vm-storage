@@ -1,6 +1,6 @@
 {
   "name": "vm-storage",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A vue plugin for operate localStorage and sessionStorage.",
   "scripts": {
     "dev": "babel src/vm-storage.js --out-file dist/vm-storage.js --presets es2015",
