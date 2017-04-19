@@ -17,26 +17,39 @@
  *
  * ```
  */
-
+const VERSION = '0.1.2'
 module.exports = {
+  version: VERSION,
   install (Vue, options) {
     Object.assign(Vue.prototype, {
       $localStorage: new Storage('localStorage', options),
-      $sessionStorage: new Storage('sessionStorage', options),
+      $sessionStorage: new Storage('sessionStorage', options)
     })
   }
-};
+}
 
-const isBoolean = (val) => typeof val === 'boolean';
-const isString = (val) => typeof val === 'string';
-const isNumber = (val) => typeof val === 'number';
-const isFunction = (val) => typeof val === 'function';
-const isDefined = (val) => typeof val !== 'undefined';
-const isUndefined = (val) => typeof val === 'undefined';
-const isPresent = (val) => val !== undefined && val !== null;
-const isBlank = (val) => val === undefined || val === null || val.trim() === '';
-const isObject = (val) => typeof val === 'object';
-const isArray = Array.isArray;
+const isBoolean = (val) => typeof val === 'boolean'
+const isString = (val) => typeof val === 'string'
+const isNumber = (val) => typeof val === 'number'
+const isFunction = (val) => typeof val === 'function'
+const isDefined = (val) => typeof val !== 'undefined'
+const isUndefined = (val) => typeof val === 'undefined'
+const isPresent = (val) => val !== undefined && val !== null
+const isBlank = (val) => val === undefined || val === null || val === ''
+const isObject = (val) => typeof val === 'object'
+const isPlainObject = (val) => isObject(val) && Object.getPrototypeOf(val) == Object.prototype
+
+const isArray = Array.isArray
+const isPrimitive = (val) => isString(val) || isBoolean(val) || (isNumber(val) && !isNaN(val))
+
+const serializer = (value) => {
+  try {
+    return JSON.parse(value)
+  } catch (err) {
+    return value
+  }
+}
+const deserializer = JSON.stringify
 
 /**
  * @class Storage
@@ -49,39 +62,59 @@ class Storage {
    * @param {string} storageType
    * @param {object} options
    * */
-  constructor (storageType, options) {
-    this._prefix = null; // storage profix
-    this._storage = null; // current storage function, if not support, it will be false
-    this._prefixLength = null; // prefix length
-    this._storageType = null; // storage type: localStorage/sessionStorage
-    this.length = 0;
+  constructor (storageType, options = {}) {
+    this._version = VERSION
+    this._prefix = null // storage profix
+    this._storage = null // current storage function, if not support, it will be false
+    this._prefixLength = null // prefix length
+    this._storageType = null // storage type: localStorage/sessionStorage
+    // this._localStore = {} // 缓存内容
+    this.length = 0
 
-    this._storageType = storageType;
-    if (!!options && !!options.prefix) {
-      this._prefix = options.prefix
+    this._storageType = storageType
+
+    if (isPresent(options.prefix)) {
+      this._prefix = options.prefix.toString().trim()
     } else {
-      this._prefix = 'vmStorage-';
+      this._prefix = ''
     }
-    this._prefixLength = this._prefix.length;
-    this._storage = this._isStorageSupported(window, storageType); // return localStorage or sessionStorage
+
+    if (this._prefix.indexOf('_') === 0) {
+      console.error('The vm-storage prefix shoule not start with "_"!')
+      return
+    }
+
+    this._prefixLength = this._prefix.length
+    this._storage = this._isStorageSupported(window, storageType) // return localStorage or sessionStorage
 
     // check whether support storage function, if not then use fallback function to handle
-    if (!this._storage) {
-      console.error('Current browser does not support sessionStorage and localStorage, ' +
-        'system will fallback to use memory to cache key/value data! storage.js::<Class>Storage')
-      this._storageFallback();
-      // test again
-      this._storage = this._isStorageSupported(window, storageType);
-    }
-
-    // init
-    for (let i = 0, l = this._storage.length, k; i < l; i++) {
-      // #8, #10: ` _storage.key(i)` may be an empty string (or throw an exception in IE9 if ` _storage` is empty)
-      k = this._storage.key(i);
-      if (this._prefix === k.slice(0, this._prefixLength)) {
-        this.length++;
-        this[k.slice(this._prefixLength)] = JSON.parse(this._storage.getItem(k))
+    if (!this.supported()) {
+      console.warn(`Current browser does not support ${this._storageType}, system will fallback to use memory to cache key/value data! storage.js::<Class>Storage`)
+    } else {
+      // init
+      for (let i = 0, l = this._storage.length, k; i < l; i++) {
+        // #8, #10: ` _storage.key(i)` may be an empty string (or throw an exception in IE9 if ` _storage` is empty)
+        k = this._storage.key(i)
+        if (this._prefix === k.slice(0, this._prefixLength) && k.indexOf('_') !== 0) {
+          this.length++
+          this[k.slice(this._prefixLength)] = this._storage.getItem(k)
+        }
       }
+
+      // addEventListener
+      window.addEventListener && window.addEventListener('storage', (event) => {
+        if (!event.key) {
+          return
+        }
+        let doc = window.document
+        if ((!doc.hasFocus || !doc.hasFocus()) && this._prefix === event.key.slice(0, this._prefixLength)) {
+          if (event.newValue) {
+            this.setItem(event.key.slice(this._prefixLength), event.newValue)
+          } else {
+            this.removeItem(event.key.slice(this._prefixLength))
+          }
+        }
+      })
     }
   }
 
@@ -91,31 +124,48 @@ class Storage {
    * */
   getItem (key) {
     if (isBlank(key))return
+    if (key.indexOf('_') === 0) {
+      return null
+    }
     return this[key]
   }
 
   /**
    * setItem
    * @param {string} key
-   * @param {string} value
+   * @param {object|string|function} value
    * */
   setItem (key, value) {
+    // deserializer
     if (isBlank(key) || isBlank(value))return
-    if (!isString(key))return
-    this[key] = JSON.parse(JSON.stringify(value));
-    this.supported() && this._storage.setItem(this._prefix + key, JSON.stringify(value));
-    this.length++;
+    !isString(key) && (key = key.toString())
+
+    if (key.indexOf('_') === 0) {
+      console.warn('setItem()::The key should not start with "_"!')
+      return
+    }
+
+    if (!isString(value)) {
+      console.warn('setItem()::The value shoule be string!')
+      return
+    }
+
+    if (!this.getItem(key)) {
+      this.length++
+    }
+    this[key] = value
+    this.supported() && this._storage.setItem(this._prefix + key, value)
   }
 
   /**
    * clear all
    * */
   clear () {
-    const _this = this;
-    this.length = 0;
+    const _this = this
     for (let k in _this) {
-      '$' === k[0] || (delete _this[k] && this.supported() && _this._storage.removeItem(_this._prefix + k));
+      '$' === k[0] || (delete _this[k] && this.supported() && _this._storage.removeItem(_this._prefix + k))
     }
+    this.length = 0
   }
 
   /**
@@ -124,13 +174,15 @@ class Storage {
    * */
   removeItem (key) {
     if (isBlank(key) || !isString(key))return
-    this.length--;
-    delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
+    if(!!this.getItem(key)){
+      this.length--
+      delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key)
+    }
   }
 
   key (num) {
-    if (!isNumber(num))return;
-    let keys = Object.keys(this._storage);
+    if (!isNumber(num))return
+    let keys = Object.keys(this._storage)
     return keys[parseInt(num)]
   }
 
@@ -138,7 +190,7 @@ class Storage {
    * supported test
    * */
   supported () {
-    return !!this._storage;
+    return !!this._storage
   }
 
   // -------- private --------
@@ -157,82 +209,27 @@ class Storage {
 
     // fix 'SecurityError: DOM Exception 18' exception in Desktop Safari, Mobile Safari
     // when "Block cookies": "Always block" is turned on
-    let supported;
+    let supported
     try {
-      supported = window[storageType];
+      supported = window[storageType]
     }
     catch (err) {
-      supported = false;
+      supported = false
     }
 
     // When Safari (OS X or iOS) is in private browsing mode, it appears as though localStorage and sessionStorage
     // is available, but trying to call .setItem throws an exception below:
     // "QUOTA_EXCEEDED_ERR: DOM Exception 22: An attempt was made to add something to storage that exceeded the quota."
     if (supported) {
-      let key = '__' + Math.round(Math.random() * 1e7);
+      let key = '__' + Math.round(Math.random() * 1e7)
       try {
-        window[storageType].setItem(key, key);
-        window[storageType].removeItem(key, key);
+        window[storageType].setItem(key, key)
+        window[storageType].removeItem(key, key)
       }
       catch (err) {
-        supported = false;
+        supported = false
       }
     }
-    return supported;
-  }
-
-  /**
-   * if not support, then rollback to use memory to catch key/value
-   * */
-  _storageFallback () {
-    window.localStorage = new StorageFallback('localStorage');
-    window.sessionStorage = new StorageFallback('sessionStorage');
-  }
-
-}
-
-/**
- * @class StorageFallback
- * @description
- * fallback to use local memory to catch key/value
- * */
-class StorageFallback {
-  constructor (storageType) {
-    this._storageType = storageType;
-    this._storage = {};
-    this.length = 0;
-  }
-
-  getItem (key) {
-    if (isBlank(key))return
-    key = key.toString();
-    return this._storage[key]
-  }
-
-  setItem (key, value) {
-    if (isBlank(key) || isBlank(value))return
-    if (!isString(key))return
-    key = key.toString();
-    value = value.toString();
-    this._storage[key] = value;
-    this.length++;
-  }
-
-  clear () {
-    this._storage = {};
-    this.length = 0;
-  }
-
-  removeItem (key) {
-    if (isBlank(key) || !isString(key))return
-    key = key.toString();
-    delete this._storage[key];
-    this.length--;
-  }
-
-  key (num) {
-    if (!isNumber(num))return;
-    let keys = Object.keys(this._storage);
-    return keys[parseInt(num)]
+    return supported
   }
 }

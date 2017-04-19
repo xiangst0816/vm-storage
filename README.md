@@ -22,7 +22,7 @@ Vue.use(vmStorage,{
 	prefix: 'vmStorage-', 
 })
 ```
-> prefix为指定前缀，设置在webStorage存储的前缀，区别作用空间
+> prefix为指定前缀，设置在webStorage存储的前缀，区别作用空间, 如果不传入prefix则为空
 
 ## Usage
 
@@ -67,3 +67,14 @@ Q: 每次访问$localStorage都会操作本地web storage吗？
 A: 取值和设值都只是对$localStorage对象进行操作，本地webStorage只是起到备份的作用,只会使用到setItem。故整体性能会好一些
 
 
+## 版本信息
+
+- 0.0.7 修改isBlank函数的bug
+- 0.0.8 如果前缀不传则不使用前缀
+- 0.0.9 如果没有前缀, 则排除前缀是_开头的变量
+- 0.1.0 如果没有前缀, 则排除前缀是_开头的变量
+- 0.1.2 修复setITem的key如果存在导致length错乱的错误
+
+## LICENSE
+
+MIT

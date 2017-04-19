@@ -1,11 +1,10 @@
 import Vue from 'vue'
 import App from './App'
-
 // from local file
 import vmStorage from '../../dist/vm-storage'
-Vue.use(vmStorage)
-
-
+Vue.use(vmStorage, {
+  prefix: ''
+})
 
 /* eslint-disable no-new */
 

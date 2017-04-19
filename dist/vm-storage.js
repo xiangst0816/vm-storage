@@ -25,8 +25,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * ```
  */
-
+var VERSION = '0.1.2';
 module.exports = {
+  version: VERSION,
   install: function install(Vue, options) {
     Object.assign(Vue.prototype, {
       $localStorage: new Storage('localStorage', options),
@@ -57,12 +58,28 @@ var isPresent = function isPresent(val) {
   return val !== undefined && val !== null;
 };
 var isBlank = function isBlank(val) {
-  return val === undefined || val === null || val.trim() === '';
+  return val === undefined || val === null || val === '';
 };
 var isObject = function isObject(val) {
   return (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object';
 };
+var isPlainObject = function isPlainObject(val) {
+  return isObject(val) && Object.getPrototypeOf(val) == Object.prototype;
+};
+
 var isArray = Array.isArray;
+var isPrimitive = function isPrimitive(val) {
+  return isString(val) || isBoolean(val) || isNumber(val) && !isNaN(val);
+};
+
+var serializer = function serializer(value) {
+  try {
+    return JSON.parse(value);
+  } catch (err) {
+    return value;
+  }
+};
+var deserializer = JSON.stringify;
 
 /**
  * @class Storage
@@ -76,40 +93,65 @@ var Storage = function () {
    * @param {string} storageType
    * @param {object} options
    * */
-  function Storage(storageType, options) {
+  function Storage(storageType) {
+    var _this2 = this;
+
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     _classCallCheck(this, Storage);
 
+    this._version = VERSION;
     this._prefix = null; // storage profix
     this._storage = null; // current storage function, if not support, it will be false
     this._prefixLength = null; // prefix length
     this._storageType = null; // storage type: localStorage/sessionStorage
+    // this._localStore = {} // 缓存内容
     this.length = 0;
 
     this._storageType = storageType;
-    if (!!options && !!options.prefix) {
-      this._prefix = options.prefix;
+
+    if (isPresent(options.prefix)) {
+      this._prefix = options.prefix.toString().trim();
     } else {
-      this._prefix = 'vmStorage-';
+      this._prefix = '';
     }
+
+    if (this._prefix.indexOf('_') === 0) {
+      console.error('The vm-storage prefix shoule not start with "_"!');
+      return;
+    }
+
     this._prefixLength = this._prefix.length;
     this._storage = this._isStorageSupported(window, storageType); // return localStorage or sessionStorage
 
     // check whether support storage function, if not then use fallback function to handle
-    if (!this._storage) {
-      console.error('Current browser does not support sessionStorage and localStorage, ' + 'system will fallback to use memory to cache key/value data! storage.js::<Class>Storage');
-      this._storageFallback();
-      // test again
-      this._storage = this._isStorageSupported(window, storageType);
-    }
-
-    // init
-    for (var i = 0, l = this._storage.length, k; i < l; i++) {
-      // #8, #10: ` _storage.key(i)` may be an empty string (or throw an exception in IE9 if ` _storage` is empty)
-      k = this._storage.key(i);
-      if (this._prefix === k.slice(0, this._prefixLength)) {
-        this.length++;
-        this[k.slice(this._prefixLength)] = JSON.parse(this._storage.getItem(k));
+    if (!this.supported()) {
+      console.warn('Current browser does not support ' + this._storageType + ', system will fallback to use memory to cache key/value data! storage.js::<Class>Storage');
+    } else {
+      // init
+      for (var i = 0, l = this._storage.length, k; i < l; i++) {
+        // #8, #10: ` _storage.key(i)` may be an empty string (or throw an exception in IE9 if ` _storage` is empty)
+        k = this._storage.key(i);
+        if (this._prefix === k.slice(0, this._prefixLength) && k.indexOf('_') !== 0) {
+          this.length++;
+          this[k.slice(this._prefixLength)] = this._storage.getItem(k);
+        }
       }
+
+      // addEventListener
+      window.addEventListener && window.addEventListener('storage', function (event) {
+        if (!event.key) {
+          return;
+        }
+        var doc = window.document;
+        if ((!doc.hasFocus || !doc.hasFocus()) && _this2._prefix === event.key.slice(0, _this2._prefixLength)) {
+          if (event.newValue) {
+            _this2.setItem(event.key.slice(_this2._prefixLength), event.newValue);
+          } else {
+            _this2.removeItem(event.key.slice(_this2._prefixLength));
+          }
+        }
+      });
     }
   }
 
@@ -123,23 +165,40 @@ var Storage = function () {
     key: 'getItem',
     value: function getItem(key) {
       if (isBlank(key)) return;
+      if (key.indexOf('_') === 0) {
+        return null;
+      }
       return this[key];
     }
 
     /**
      * setItem
      * @param {string} key
-     * @param {string} value
+     * @param {object|string|function} value
      * */
 
   }, {
     key: 'setItem',
     value: function setItem(key, value) {
+      // deserializer
       if (isBlank(key) || isBlank(value)) return;
-      if (!isString(key)) return;
-      this[key] = JSON.parse(JSON.stringify(value));
-      this.supported() && this._storage.setItem(this._prefix + key, JSON.stringify(value));
-      this.length++;
+      !isString(key) && (key = key.toString());
+
+      if (key.indexOf('_') === 0) {
+        console.warn('setItem()::The key should not start with "_"!');
+        return;
+      }
+
+      if (!isString(value)) {
+        console.warn('setItem()::The value shoule be string!');
+        return;
+      }
+
+      if (!this.getItem(key)) {
+        this.length++;
+      }
+      this[key] = value;
+      this.supported() && this._storage.setItem(this._prefix + key, value);
     }
 
     /**
@@ -150,10 +209,10 @@ var Storage = function () {
     key: 'clear',
     value: function clear() {
       var _this = this;
-      this.length = 0;
       for (var k in _this) {
         '$' === k[0] || delete _this[k] && this.supported() && _this._storage.removeItem(_this._prefix + k);
       }
+      this.length = 0;
     }
 
     /**
@@ -164,9 +223,11 @@ var Storage = function () {
   }, {
     key: 'removeItem',
     value: function removeItem(key) {
-      // if (isBlank(key) || !isString(key))return
-      this.length--;
-      delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
+      if (isBlank(key) || !isString(key)) return;
+      if (!!this.getItem(key)) {
+        this.length--;
+        delete this[key] && this.supported() && this._storage.removeItem(this._prefix + key);
+      }
     }
   }, {
     key: 'key',
@@ -226,77 +287,7 @@ var Storage = function () {
       }
       return supported;
     }
-
-    /**
-     * if not support, then rollback to use memory to catch key/value
-     * */
-
-  }, {
-    key: '_storageFallback',
-    value: function _storageFallback() {
-      window.localStorage = new StorageFallback('localStorage');
-      window.sessionStorage = new StorageFallback('sessionStorage');
-    }
   }]);
 
   return Storage;
-}();
-
-/**
- * @class StorageFallback
- * @description
- * fallback to use local memory to catch key/value
- * */
-
-
-var StorageFallback = function () {
-  function StorageFallback(storageType) {
-    _classCallCheck(this, StorageFallback);
-
-    this._storageType = storageType;
-    this._storage = {};
-    this.length = 0;
-  }
-
-  _createClass(StorageFallback, [{
-    key: 'getItem',
-    value: function getItem(key) {
-      if (isBlank(key)) return;
-      key = key.toString();
-      return this._storage[key];
-    }
-  }, {
-    key: 'setItem',
-    value: function setItem(key, value) {
-      if (isBlank(key) || isBlank(value)) return;
-      if (!isString(key)) return;
-      key = key.toString();
-      value = value.toString();
-      this._storage[key] = value;
-      this.length++;
-    }
-  }, {
-    key: 'clear',
-    value: function clear() {
-      this._storage = {};
-      this.length = 0;
-    }
-  }, {
-    key: 'removeItem',
-    value: function removeItem(key) {
-      if (isBlank(key) || !isString(key)) return;
-      key = key.toString();
-      delete this._storage[key];
-      this.length--;
-    }
-  }, {
-    key: 'key',
-    value: function key(num) {
-      if (!isNumber(num)) return;
-      var keys = Object.keys(this._storage);
-      return keys[parseInt(num)];
-    }
-  }]);
-
-  return StorageFallback;
 }();
