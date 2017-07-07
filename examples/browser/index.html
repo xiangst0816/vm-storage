@@ -1,0 +1,63 @@
+<html>
+
+<head>
+    <title>webpack library example - Transalating numbers</title>
+    <script type='text/javascript' src='https://unpkg.com/lodash@4.16.6'></script>
+    <script src="http://vuejs.org/js/vue.min.js"></script>
+</head>
+
+<body>
+    <div id='root'>
+        <h2>测试信息</h2>
+        <p><span>版本: </span><span>{{version}}</span></p>
+        <p>是否支持: {{supported}}</p>
+        <p>其余信息处参考console</p>
+    </div>
+    <script type='text/javascript' src='./vm-storage.min.js'></script>
+    <script type='text/javascript'>
+
+        console.log(vmStorage)
+        console.log(vmStorage.version)
+        let vm = Vue.prototype
+        console.log(vm.$localStorage.set('hello', { a: 1 }))
+        console.log(vm.$localStorage.get('hello'))
+
+        var array = [1, 2, 3, 4, 5]
+        var object = {
+          a: 1,
+          b: 2
+        }
+        vm.$localStorage.set('array', array)
+        vm.$localStorage.set('array-string', JSON.stringify(array))
+        vm.$localStorage.set('object', object)
+        vm.$localStorage.set('object-string', JSON.stringify(object))
+
+        console.log(`测试1: vm.$localStorage.get('array')`)
+        console.log(vm.$localStorage.get('array'))
+        console.log(JSON.stringify(vm.$localStorage.get('array')) === JSON.stringify(array))
+
+        console.log(`测试2: vm.$localStorage.get('object')`)
+        console.log(vm.$localStorage.get('object'))
+        console.log(JSON.stringify(vm.$localStorage.get('object')) === JSON.stringify(object))
+        
+        console.log(`测试3: vm.$localStorage.remove('object')`)
+        console.log(vm.$localStorage.remove('object'))
+        console.log(vm.$localStorage.get('object'))
+        console.log(JSON.stringify(vm.$localStorage.get('object')) === JSON.stringify(object))
+
+        console.log(vm.$localStorage)
+        var vm2 = new Vue({
+          el: '#root',
+          data: function () {
+            return {
+              version: vmStorage.version,
+              supported: this.$localStorage.supported()
+            }
+          }
+        })
+
+    // document.getElementById('root').innerHTML = " This is a browser example where and api is called to transalate 'One' to '1' \n Results: wordtonum('One') === " + webpackNumbers.wordtonum('One')
+    </script>
+</body>
+
+</html>
